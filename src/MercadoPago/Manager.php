@@ -299,7 +299,9 @@ class Manager
     protected function _attributesToJson($entity, &$result)
     {
       if (is_array($entity)) {             
-          $attributes = array_filter($entity); 
+          $attributes = array_filter($entity, function($entity) {
+              return ($entity !== null && $entity !== false && $entity !== '');
+          });
       } else { 
           $attributes = $entity->toArray();
       }
@@ -308,7 +310,7 @@ class Manager
            if ($value instanceof Entity || is_array($value)) {
                $this->_attributesToJson($value, $result[$key]);
            } else {
-             if ($value != null || is_bool($value)){
+             if ($value != null || is_bool($value) || is_numeric($value)){
                $result[$key] = $value;
              } 
            } 
@@ -409,6 +411,7 @@ class Manager
         $query['headers']['Content-Type'] = 'application/json';
         $query['headers']['User-Agent'] = 'MercadoPago DX-PHP SDK/ v'. Version::$_VERSION;
         $query['headers']['x-product-id'] = 'BC32A7RU643001OI3940';
+        $query['headers']['x-tracking-id'] = 'platform:' . PHP_MAJOR_VERSION .'|' . PHP_VERSION . ',type:SDK' . Version::$_VERSION . ',so;';
         foreach ($this->_customTrackingParams as $key => $value){ 
             $query['headers'][$key] = $value;
         }
